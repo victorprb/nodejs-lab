@@ -1,41 +1,64 @@
-let vehicles = [
-    { id: 1, name: "corsa" },
-    { id: 2, name: "golf" },
-    { id: 3, name: "camaro" },
-    { id: 4, name: "jeep" },
-    { id: 5, name: "onix" },
-]
+const parseISO = require('date-fns/parseISO')
+const { Vehicle } = require('../../db/models')
+const { Op } = require("sequelize");
 
-function getVehicles() {
-    return vehicles
-}
+class VehiclesService {
+    constructor(vehiclesRepo) {
+        this.vehiclesRepo = vehiclesRepo
+    }
 
-function findVehicle(params) {
-    return vehicles.find(vehicle => {
-        return vehicle.id == params.id
-    })
-}
+    async getVehicles(filters) {
+        const where = {}
 
-function addVehicle(vehicle) {
-    vehicles = [...vehicles, vehicle]
+        const { sold, brand, fromDate, toDate } = filters
 
-    return vehicle
-}
-
-function updateVehicle(vehicle) {
-    vehicles = vehicles.map(v => {
-        if (vehicle.id == v.id) {
-            return vehicle
+        if (sold) {
+            where["sold"] = sold
         }
 
-        return v
-    })
+        if (brand) {
+            where["brand"] = brand
+        }
+
+        if (fromDate) {
+            where["createdAt"] = {
+                [Op.gte]: parseISO(fromDate)
+            }
+        }
+
+        if (toDate) {
+            where["createdAt"] = {
+                [Op.lte]: parseISO(toDate)
+            }
+        }
+
+        return await this.vehiclesRepo.findAll({
+            order: ["id"],
+            where
+        });
+    }
+
+    async getVehicle(id) {
+        return this.vehiclesRepo.findByPk(id)
+    }
+
+    async addVehicle(vehicle) {
+        return await this.vehiclesRepo.create(vehicle)
+    }
+
+    async updateVehicle(vehicle) {
+        return await this.vehiclesRepo.update(vehicle, {
+            where: {
+                id: vehicle.id
+            }
+        })
+    }
+
+    async deleteVehicle(id) {
+        return await this.vehiclesRepo.destroy({ where: { id: id } })
+    }
 }
 
-function deleteVehicle(id) {
-    vehicles = vehicles.filter(vehicle => {
-        return vehicle.id != id
-    })
-}
+const vehiclesService = new VehiclesService(Vehicle)
 
-export const VehiclesService = { getVehicles, findVehicle, addVehicle, updateVehicle, deleteVehicle }
+module.exports = vehiclesService;

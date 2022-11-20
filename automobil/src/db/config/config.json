@@ -1,0 +1,23 @@
+{
+  "development": {
+    "username": "automobil",
+    "password": "secret",
+    "database": "automobil",
+    "host": "127.0.0.1",
+    "dialect": "postgres"
+  },
+  "test": {
+    "username": "automobil",
+    "password": "secret",
+    "database": "automobil_test",
+    "host": "127.0.0.1",
+    "dialect": "postgres"
+  },
+  "production": {
+    "username": "automobil",
+    "password": "secret",
+    "database": "automobil",
+    "host": "127.0.0.1",
+    "dialect": "postgres"
+  }
+}

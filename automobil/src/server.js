@@ -1,5 +1,6 @@
-import express from "express";
-import { HealthController, VehiclesController } from "./application/controllers";
+const express = require("express");
+const HealthController = require("./application/controllers/health.controller");
+const VehiclesController = require("./application/controllers/vehicles.controller");
 
 const server = express()
 
