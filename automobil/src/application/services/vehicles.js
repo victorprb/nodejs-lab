@@ -1,6 +1,6 @@
 const parseISO = require('date-fns/parseISO')
 const { Vehicle } = require('../../db/models')
-const { Op } = require("sequelize");
+const { Op, Sequelize } = require("sequelize");
 
 class VehiclesService {
     constructor(vehiclesRepo) {
@@ -56,6 +56,46 @@ class VehiclesService {
 
     async deleteVehicle(id) {
         return await this.vehiclesRepo.destroy({ where: { id: id } })
+    }
+
+    async vehiclesDashboard() {
+        const soldVehicles = await this.vehiclesRepo.count({ where: { sold: true } })
+        const vehiclesByBrand = await this.vehiclesRepo.count({
+            attributes: ["brand"],
+            group: "brand"
+        })
+        const vehiclesByDecade = await this.vehiclesRepo.count({
+            attributes: [
+                [
+                    Sequelize.fn(
+                        "div",
+                        Sequelize.fn(
+                            "div",
+                            Sequelize.col("year"),
+                            10
+                        ),
+                        0.1
+                    ),
+                    "decade"
+                ]
+            ],
+            group: "decade",
+            order: ["decade"]
+        })
+
+        const formattedVehiclesByBrand = vehiclesByBrand.map(item => {
+            return [item.brand, item.count]
+        })
+
+        const formattedVehiclesByDecade = vehiclesByDecade.map(item => {
+            return [item.decade, item.count]
+        })
+
+        return {
+            soldVehicles: soldVehicles,
+            vehiclesByBrand: formattedVehiclesByBrand,
+            vehiclesByDecade: formattedVehiclesByDecade,
+        }
     }
 }
 

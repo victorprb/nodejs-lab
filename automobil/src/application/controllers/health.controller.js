@@ -2,7 +2,7 @@ const { Router } = require("express");
 
 const router = Router();
 
-router.get('/ping', (req, res, next) => {
+router.get('/ping', (_req, res) => {
     res.sendStatus(200);
 })
 
